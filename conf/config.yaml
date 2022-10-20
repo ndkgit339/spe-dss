@@ -1,0 +1,164 @@
+hydra:
+  run:
+    dir: .
+
+defaults:  
+  - _self_
+  - model_G: scyclone_g
+  - model_G_f0: scyclone_g
+  - model_G_sp: scyclone_g
+  - model_G_ap: scyclone_g
+  - model_D: Scyclone_D
+
+seed: 42
+
+preprocess:
+  # general settings
+  n_jobs: 4
+
+  # data
+  corpus_name: JVS
+  corpus_dir: download/jvs_ver1
+  data_dir: data/ver221006
+
+  # audio features
+  audio:
+    sample_rate: 24000
+    n_fft: 1024
+    # frame_shift_ms: 2.5
+    hop_length: 120
+    n_coded_sp: 80
+    n_coded_ap: 5
+    coding_ap: interp        # support {"world", "interp"}
+    stft_window: hann
+    stft_center: True
+    n_mels_spec: 80
+    synth_hop_length: 24
+
+  # settings of prepare data
+  n_person: 50
+
+  # settings of split data
+  split_rates: [100, 1, 1, 1]
+
+  # settings of prepare wav
+  n_frames: 200
+
+  # settings of preprocess feature
+  comp: False
+  melspec: True
+  highpass: False
+
+data:
+  # features
+  spectrogram: norm/spectrogram
+  f0: norm/f0
+  spectrum: norm/spectrum
+  aperiodicity: norm/aperiodicity
+  wav: org/wav
+
+  # training set
+  train:
+    utt_list: train.list
+    batch_size: 64
+
+  # development set
+  dev:
+    utt_list: dev.list
+    batch_size: 32
+
+  # development set
+  synth:
+    utt_list: synth.list
+    batch_size: 1 
+
+  # data loader
+  num_workers: 1 
+
+train:
+  data_parallel: False
+  cudnn:
+    benchmark: True
+    deterministic: False
+
+  out_dir: exp/ver221006
+
+  restore_step: 0
+  train_log_step: 1000
+  train_synth_step: 10000
+  train_lsd_step: 10000
+  val_step: 10000
+  val_lsd_n_val_step: 5
+  synth_n_val_step: 5
+  save_step: 100000
+  max_steps: 500000
+
+  max_norm: 0.5
+
+  training_mode: shared_model         # {each_feats_model, shared_model}
+
+
+  adversarial: True
+  discriminate_step: 100
+  discriminate_spec: True
+
+  loss:
+    name: mrstft            # support {only_feats, stft, mrstft}
+    gammas_stft: [0.0, 1.0]
+    gammas_feats: [1.0, 1.0]
+    gammas_adv: 1.0
+    steps: [50]
+    loss_type:
+      G: hinge
+      D: hinge
+
+    audio:
+
+      ## stft loss
+      # fft_size: 1024
+      # shift_size: 120
+      # win_length: 600
+
+      ## multi res stft loss
+      fft_size: [512, 1024, 2048]
+      shift_size: [50, 120, 240]
+      win_length: [240, 600, 1200]
+
+    cut_edge: 512
+
+  optim:
+    optimizer:
+      G:
+        name: Adam
+        params:
+          lr: 0.0001
+          betas: [0.5, 0.999]
+          eps: 1e-8
+      D:
+        name: Adam
+        params:
+          lr: 0.0001
+          betas: [0.5, 0.999]      
+          eps: 1e-8
+    lr_scheduler:
+      G:
+        name: MultiStepLR
+        params:
+          milestones: 
+            - 300000
+            - 400000
+          gamma: 0.1
+      D:
+        name: MultiStepLR
+        params:
+          milestones: 
+            - 100000
+            - 200000
+          gamma: 0.1      
+
+val:
+  lsd:
+    cut_edge: 1024
+    fft_size: 1024
+    shift_size: 250
+    win_length: 1024

@@ -1,0 +1,6 @@
+__pycache__/
+.hydra/
+data/
+download/
+exp/
+ParallelWaveGAN/

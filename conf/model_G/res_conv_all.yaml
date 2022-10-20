@@ -1,0 +1,9 @@
+
+netG:
+  _target_: model.Residual_ConvNet
+  in_channel: 84 
+  mid_channel: 168
+  out_channel: 84 
+  n_convblock: 4 
+  kernel_size: 5
+  negative_slope: 0.01

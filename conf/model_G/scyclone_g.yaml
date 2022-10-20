@@ -1,0 +1,7 @@
+_target_: model.Scyclone_G
+in_channel: 80 
+mid_channel: 1028
+out_channel: 1028
+n_resblock: 4
+resblock_kernel_size: 5
+negative_slope: 0.01

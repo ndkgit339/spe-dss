@@ -1,0 +1,4 @@
+_target_: model.Scyclone_D
+in_channels: 513
+hidden_channels: 1026
+n_blocks: 3

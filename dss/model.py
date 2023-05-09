@@ -119,7 +119,7 @@ class DifferentiableSpeechSynthesizer(nn.Module):
 
         # Periodic Spectrum
         periodic_env = torch.sqrt(
-            torch.clamp(spectral_env * (1.0 - aperiodicity), min=eps)
+            torch.clamp(spectral_env * (1.0 - aperiodicity * aperiodicity), min=eps)
         )
         preiodic_min_phase = self._get_minimum_phase(periodic_env)
         periodic_comp_spec = self._get_complex_spectrum(
